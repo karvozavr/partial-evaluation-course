@@ -2,9 +2,9 @@
 
 (require racket/dict)
 
-(provide interpret)
+(provide interpret-fl)
 
-(define (interpret program args)
+(define (interpret-fl program args)
   (let ([state (init-state (cdar program) args)])
     (interpret-block (cdr program) state (cdadr program))))
 
@@ -51,6 +51,4 @@
      (if (equal? (car head) label)
          (cdr head)
          (find-block tail label))]))
-
-(define p '((read x) (0 (if (equal? x 42) 2 1)) (1 (return (- 42 x))) (2 (return 42))))
 
