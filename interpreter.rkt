@@ -36,13 +36,15 @@
 ; Evaluate expression in a context of state 
 (define (eval-expr state expr)
   (let ([st (map (lambda (x) (list (car x) (cdr x))) state)])
-    (eval `(let ,st ,expr))))
+    (begin
+      (displayln `(let ,st ,expr))
+      (eval `(let ,st ,expr)) )))
 
 (define (init-state vars values)
-  (map cons vars values))
+  (map (lambda (x y) (cons x `',y)) vars values))
 
 (define (set-state state var value)
-  (dict-set state var value))
+  (dict-set state var `',value))
 
 (define (find-block program label)
   (match program
