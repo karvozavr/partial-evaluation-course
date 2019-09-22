@@ -1,5 +1,16 @@
 #lang racket
 
+(define (move-tape l)
+  (match l
+    ['() '(_)]
+    ;[`(,el) `(,el _)]
+    [(cons head tail) tail]))
+
+(define (first-symbol l)
+  (match l
+    ['() '_]
+    [(cons head tail) head]))
+
 ; Flowchart implementation of Turing Machine interpreter
 (define tm-interpreter
   '((read program Right)
@@ -21,24 +32,24 @@
 
     (interpret-if (:= symbol (cadr instr))
                   (:= instr (cddr instr))
-                  (if (eq? (car Right) symbol) interpret-goto loop))
+                  (if (eq? (first-symbol Right) symbol) interpret-goto loop))
     
     (interpret-goto (:= program-tail (list-tail program (list-ref instr 1)))
                     (goto loop))
 
     (interpret-write (:= symbol (cadr instr))
-                     (:= Right (cons symbol (cdr Right)))
+                     (:= Right (cons symbol (move-tape Right)))
                      (goto loop))
 
-    (interpret-left (:= Right ((car Left) . Right))
-                     (:= Left (cdr Left))
+    (interpret-left (:= Right (cons (first-symbol Left) Right))
+                     (:= Left (move-tape Left))
                      (goto loop))
 
-    (interpret-right (:= Left (cons (car Right) Left))
-                     (:= Right (cdr Right))
+    (interpret-right (:= Left (cons (first-symbol Right) Left))
+                     (:= Right (move-tape Right))
                      (goto loop))
     
     (error (return (list 'syntax-error instr)))
-    (stop (return (append Left Right)))))
+    (stop (return (append (reverse Left) Right)))))
 
-(define tm-prog '((0 if 0 goto 3) (1 right) (2 goto 0) (3 write 1)))
+(define tm-prog '((0 if _ goto 3) (1 left) (2 goto 0) (3 write 1)))
