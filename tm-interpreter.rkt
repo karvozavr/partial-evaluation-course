@@ -1,5 +1,7 @@
 #lang racket
 
+(provide tm-interpreter tm-prog move-tape first-symbol)
+
 (define (move-tape l)
   (match l
     ['() '(_)]
@@ -52,4 +54,4 @@
     (error (return (list 'syntax-error instr)))
     (stop (return (append (reverse Left) Right)))))
 
-(define tm-prog '((0 if _ goto 3) (1 left) (2 goto 0) (3 write 1)))
+(define tm-prog '((0 if 0 goto 3) (1 right) (2 goto 0) (3 write 1)))
