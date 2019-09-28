@@ -1,17 +1,10 @@
 #lang racket
 
-(provide tm-interpreter tm-prog move-tape first-symbol)
+(provide
+ tm-interpreter
+ tm-prog)
 
-(define (move-tape l)
-  (match l
-    ['() '(_)]
-    ;[`(,el) `(,el _)]
-    [(cons head tail) tail]))
-
-(define (first-symbol l)
-  (match l
-    ['() '_]
-    [(cons head tail) head]))
+(require "helper-functions.rkt")
 
 ; Flowchart implementation of Turing Machine interpreter
 (define tm-interpreter
