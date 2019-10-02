@@ -26,7 +26,8 @@
 
 ; Initialize the dict of variables
 (define (init-state vars values)
-  (map (lambda (x y) (cons x `',y)) vars values))
+  (begin (displayln (list vars values))
+  (map (lambda (x y) (cons x `',y)) vars values)))
 
 ; Set state var to value
 (define (set-state state var value)
@@ -120,3 +121,8 @@
 
 (define (extend code cmd)
   (append code (list cmd)))
+
+; -------------------------------------------------------------
+
+(define (get-labels prog)
+  (map (lambda (x) (car x)) (cdr prog)))

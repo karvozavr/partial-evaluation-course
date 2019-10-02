@@ -10,7 +10,7 @@
 (define tm-interpreter
   '((read program Right)
     
-    (init (:= program-tail program)
+    (init1 (:= program-tail program)
           (:= Left '())
           (goto loop))
     
