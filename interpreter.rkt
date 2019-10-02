@@ -11,12 +11,17 @@
 
 ; Interpret Flowchart basic block (line)
 (define (interpret-block program state block)
+  (begin
+    
+   ; (displayln (list "block: " block))
+   ; (displayln "")
+    
   (match block
     ['() (error "Empty basic block.")]
     [`(,head)
      (interpret-jump program state head)]
     [(cons head tail)
-     (interpret-block program (interpret-assign state head) tail)]))
+     (interpret-block program (interpret-assign state head) tail)])))
 
 ; Interpret Flowchart assignment and update state
 (define (interpret-assign state assign)

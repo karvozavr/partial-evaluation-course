@@ -20,8 +20,9 @@
 (define (eval-expr state expr)
   (let ([st (map (lambda (x) (list (car x) (cdr x))) state)])
     (begin
- ;     (displayln `(let ,st ,expr))
-      (eval `(let ,st ,expr) ns))))
+    ;  (displayln `(let ,st ,expr))
+   ;   (displayln "")
+      (let ([v (eval `(let ,st ,expr) ns)]) v))))
 
 ; Initialize the dict of variables
 (define (init-state vars values)
@@ -34,7 +35,7 @@
 ; Find basic block by label
 (define (find-block program label)
   (match program
-    ['() (error "Label not found.")]
+    ['() (error (list "Label not found:" label))]
     [(cons head tail)
      (if (equal? (car head) label)
          (cdr head)
@@ -64,16 +65,19 @@
   (with-handlers
       ([(lambda (v) #t)
         (lambda (err)
-          (if (list? exp)
+          (if (list? exp) 
               (map (lambda (x) (reduce x vs)) exp)
               exp))])
     (let ([result (eval-expr vs exp)])
-      (if (procedure? result) exp result))))
+      (if (procedure? result) exp (if (eq? '() result) ''() result)))))
 
 (define (is-static-exp? division exp)
+    (begin
+    ;  (displayln "is-static-exp")
+    ;  (displayln "")
   (if (list? exp)
       (andmap (lambda (x) (is-static-exp? division x)) exp)
-      (not (is-dynamic? division exp))))
+      (not (is-dynamic? division exp)))))
 
 (define (is-static? division X)
   (set-member? (car division) X))
@@ -83,12 +87,15 @@
 
 ; Find block by label
 (define (lookup label program)
+  (begin
+     ; (displayln "lookup call")
+     ; (displayln "")
   (match program
     ['() (error "Label not found.")]
     [(cons head tail)
      (if (equal? (car head) label)
          (cdr head)
-         (lookup label tail))]))
+         (lookup label tail))])))
 
 (define (is-assignment command)
   (eq? (car command) ':=))
@@ -109,7 +116,7 @@
   (cons 'read (set-subtract (cdr read-block) (car division))))
 
 (define (quote-list exp)
-  (if (and (not (eq? exp '())) (and (not (list? (car exp))) (procedure? (eval (car exp))))) exp `',exp))
+    (if (eq? exp '()) `',exp exp))
 
 (define (extend code cmd)
   (append code (list cmd)))

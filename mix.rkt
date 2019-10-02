@@ -75,10 +75,14 @@
   (interpret-fl
    mix
    (list tm-interpreter (list '(operator program program-tail instr symbol) '(Right Left)) (init-state (list 'program) (list tm-prog)))))
-         ;(list '(operator program program-tail instr symbol) '(Right Left))
-         
-         
-         ;(list `(program ,tm-prog))
+
+; 2-nd Fatamura projection
+(define proj2
+  (interpret-fl
+   mix
+   (list mix
+         (list '(program division) '(vs0 pending mapped pp vs command X code bb pp1 pp2 exp residual))
+         (init-state (list 'program 'division) (list tm-interpreter (list '(operator program program-tail instr symbol) '(Right Left)))))))
          
 
 
