@@ -7,7 +7,13 @@
          move-tape ; TM
          first-symbol
          reduce ; mix
-         initial-code)
+         initial-code
+         fl-pretty-print
+         change-labels
+         fl-pretty-print)
+
+(require racket/list
+         racket/dict)
 
 (define-namespace-anchor anc)
 (define ns (namespace-anchor->namespace anc))
@@ -26,7 +32,7 @@
 
 ; Initialize the dict of variables
 (define (init-state vars values)
-  (begin (displayln (list vars values))
+  (begin ;(displayln (list vars values))
   (map (lambda (x y) (cons x `',y)) vars values)))
 
 ; Set state var to value
@@ -124,5 +130,28 @@
 
 ; -------------------------------------------------------------
 
+(define (fl-pretty-print program)
+  (match program
+    ['() (printf "\n")]
+    [(cons x xs) (printf "~s\n" x)
+              (fl-pretty-print xs)]))
+
+(define (enumerate n)
+    (define (build-list m)
+        (cond ((<= m 0) '())
+              (else (cons (- m 1)
+                          (build-list (- m 1))))))
+    (reverse (build-list n)))
+
 (define (get-labels prog)
-  (map (lambda (x) (car x)) (cdr prog)))
+  (let ([prog (cdr prog)])
+  (map (lambda (x i) (cons (car x) (string-append "L" (number->string i)))) prog (enumerate (length prog)))))
+
+(define (change-labels prog)
+  (let ([mapping (get-labels prog)])
+    (for/list ([el prog]) (map-labels el mapping))))
+
+(define (map-labels x mapping)
+  (cond ((dict-has-key? mapping x) (dict-ref mapping x))
+        ((list? x) (map (lambda (y) (map-labels y mapping)) x))
+        (else x)))

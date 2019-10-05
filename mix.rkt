@@ -6,6 +6,8 @@
          "tm-interpreter.rkt"
          "helper-functions.rkt")
 
+(provide main)
+
 (define mix
   '([read program division vs0]
     [init1 (:= pending (list (list (caadr program) vs0)))
@@ -71,18 +73,25 @@
     ))
 
 ; 1-st Fatamura projection
-(define tm-proj1
+(define proj1
   (interpret-fl
    mix
    (list tm-interpreter (list '(operator program program-tail instr symbol) '(Right Left)) (init-state (list 'program) (list tm-prog)))))
 
+(define (main)
+  (begin
+    (printf "TM Program:\n\n")
+    (fl-pretty-print tm-prog)
+    (printf "Specified interpreter Program:\n\n")
+    (fl-pretty-print (change-labels proj1))))
+
 ; 2-nd Fatamura projection
-(define proj2
-  (interpret-fl
-   mix
-   (list mix
-         (list '(program division) '(vs0 pending mapped pp vs command X code bb pp1 pp2 exp residual))
-         (init-state (list 'program 'division) (list tm-interpreter (list '(operator program program-tail instr symbol) '(Right Left)))))))
+; (define proj2
+;  (interpret-fl
+;   mix
+;   (list mix
+;         (list '(program division) '(vs0 pending mapped pp vs command X code bb pp1 pp2 exp residual))
+;         (init-state (list 'program 'division) (list tm-interpreter (list '(operator program program-tail instr symbol) '(Right Left)))))))
          
 
 
