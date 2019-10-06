@@ -26,14 +26,14 @@
 (define (eval-expr state expr)
   (let ([st (map (lambda (x) (list (car x) (cdr x))) state)])
     (begin
-    ;  (displayln `(let ,st ,expr))
-   ;   (displayln "")
+      ;(displayln `(let ,st ,expr))
+      ;(displayln "")
       (let ([v (eval `(let ,st ,expr) ns)]) v))))
 
 ; Initialize the dict of variables
 (define (init-state vars values)
   (begin ;(displayln (list vars values))
-  (map (lambda (x y) (cons x `',y)) vars values)))
+    (map (lambda (x y) (cons x `',y)) vars values)))
 
 ; Set state var to value
 (define (set-state state var value)
@@ -68,23 +68,25 @@
 ; --------------------------------------------
 
 ; Reduce expression
-(define (reduce exp vs)
+(define (reduce exp r-vs)
   (with-handlers
       ([(lambda (v) #t)
         (lambda (err)
-          (if (list? exp) 
-              (map (lambda (x) (reduce x vs)) exp)
-              exp))])
-    (let ([result (eval-expr vs exp)])
-      (if (procedure? result) exp (if (eq? '() result) ''() result)))))
+          [if (list? exp) `,(map (lambda (x) (reduce x r-vs)) exp) exp])])
+    (if (and [list? exp] [and [not (empty? exp)] [equal? 'quote (first exp)]])
+        exp
+        (let ([result (eval-expr r-vs exp)]) 
+          (if (procedure? result) exp (if (list? result) `',result result))))))
 
 (define (is-static-exp? division exp)
+    (let ([stst (if (list? exp)
+        (andmap (lambda (x) (is-static-exp? division x)) exp)
+        (not (is-dynamic? division exp)))])
     (begin
-    ;  (displayln "is-static-exp")
-    ;  (displayln "")
-  (if (list? exp)
-      (andmap (lambda (x) (is-static-exp? division x)) exp)
-      (not (is-dynamic? division exp)))))
+        ;(displayln (list division exp stst))
+        ;(displayln "")
+        stst
+      )))
 
 (define (is-static? division X)
   (set-member? (car division) X))
@@ -95,14 +97,14 @@
 ; Find block by label
 (define (lookup label program)
   (begin
-     ; (displayln "lookup call")
-     ; (displayln "")
-  (match program
-    ['() (error "Label not found.")]
-    [(cons head tail)
-     (if (equal? (car head) label)
-         (cdr head)
-         (lookup label tail))])))
+    ; (displayln "lookup call")
+    ; (displayln "")
+    (match program
+      ['() (error "Label not found.")]
+      [(cons head tail)
+       (if (equal? (car head) label)
+           (cdr head)
+           (lookup label tail))])))
 
 (define (is-assignment command)
   (eq? (car command) ':=))
@@ -123,7 +125,7 @@
   (cons 'read (set-subtract (cdr read-block) (car division))))
 
 (define (quote-list exp)
-    (if (eq? exp '()) `',exp exp))
+  (if (eq? exp '()) `',exp exp))
 
 (define (extend code cmd)
   (append code (list cmd)))
@@ -134,18 +136,18 @@
   (match program
     ['() (printf "\n")]
     [(cons x xs) (printf "~s\n" x)
-              (fl-pretty-print xs)]))
+                 (fl-pretty-print xs)]))
 
 (define (enumerate n)
-    (define (build-list m)
-        (cond ((<= m 0) '())
-              (else (cons (- m 1)
-                          (build-list (- m 1))))))
-    (reverse (build-list n)))
+  (define (build-list m)
+    (cond ((<= m 0) '())
+          (else (cons (- m 1)
+                      (build-list (- m 1))))))
+  (reverse (build-list n)))
 
 (define (get-labels prog)
   (let ([prog (cdr prog)])
-  (map (lambda (x i) (cons (car x) (string-append "L" (number->string i)))) prog (enumerate (length prog)))))
+    (map (lambda (x i) (cons (car x) (string-append (caadar x) "-" (number->string i)))) prog (enumerate (length prog)))))
 
 (define (change-labels prog)
   (let ([mapping (get-labels prog)])
