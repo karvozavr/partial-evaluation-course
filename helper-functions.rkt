@@ -67,6 +67,14 @@
 ; mix functions
 ; --------------------------------------------
 
+; update pending
+(define (update-pending pending marked pp1 pp2 vs)
+  (if (set-member? marked (list pp1 vs))
+      (if (set-member? marked (list pp2 vs)) pending (set-add pending (list pp2 vs)))
+      (let ([pending (set-add pending (list pp1 vs))] )
+        (if (set-member? marked (list pp2 vs)) pending (set-add pending (list pp2 vs))))
+      ))
+
 ; Reduce expression
 (define (reduce exp r-vs)
   (with-handlers
