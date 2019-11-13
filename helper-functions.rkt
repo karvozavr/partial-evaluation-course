@@ -86,6 +86,13 @@
         (let ([result (eval-expr r-vs exp)]) 
           (if (procedure? result) exp (if (list? result) `',result result))))))
 
+(define (reduce-new exp r-vs)
+  (cond
+    [(null? exp) exp]
+    [(number? exp) exp]
+    [#t exp]
+))
+
 (define (is-static-exp? division exp)
     (let ([stst (if (list? exp)
         (andmap (lambda (x) (is-static-exp? division x)) exp)

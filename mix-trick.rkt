@@ -22,7 +22,7 @@
                       (goto "mix1-the-trick-loop")]
 
     ["mix1-the-trick-loop" (if (empty? m1-program-tail) "mix1-error" "mix1-the-trick-loop-cond")]
-    ["mix1-the-trick-loop-cond" (if (equal? (caar m1-program-tail) m1-pp-query) "mix1-the-trick-found" "mix1-the-trick-continue")]
+    ["mix1-the-trick-loop-cond" (if (equal? (caar m1-program-tail) m1-pp) "mix1-the-trick-found" "mix1-the-trick-continue")]
     ["mix1-the-trick-found" (:= m1-bb (cdar m1-program-tail))
                             (goto "mix1-while-bb")]
     ["mix1-the-trick-continue" (:= m1-program-tail (cdr m1-program-tail))
@@ -37,7 +37,6 @@
                          (:= m1-pending (cdr m1-pending))
                          (:= m1-marked (set-add m1-marked (list m1-pp m1-vs)))
                          (:= m1-code (initial-code m1-pp m1-vs))
-                         (:= m1-pp-query m1-pp)
                          (goto "mix1-the-trick")] 
 
     ["mix1-while-bb" (if (not (eq? m1-bb '())) "mix1-bb-loop" "mix1-bb-loop-end")]
@@ -59,7 +58,7 @@
                       (goto "mix1-while-bb")]
 
     ["mix1-case-goto" (:= m1-pp1 (cadr m1-command))
-                      (:= m1-pp-query m1-pp1)
+                      (:= m1-pp m1-pp1)
                       (goto "mix1-the-trick")]
 
     ["mix1-case-if" (:= m1-exp (cadr m1-command))
@@ -67,9 +66,9 @@
                     (:= m1-pp2 (cadddr m1-command))
                     (if (is-static-exp? m1-division m1-exp) "mix1-cond-static" "mix1-cond-dynamic")]
     ["mix1-cond-static" (if (eval-expr m1-vs m1-exp) "mix1-go-pp1" "mix1-go-pp2")]
-    ["mix1-go-pp1" (:= m1-pp-query m1-pp1) 
+    ["mix1-go-pp1" (:= m1-pp m1-pp1) 
                    (goto "mix1-the-trick")]
-    ["mix1-go-pp2" (:= m1-pp-query m1-pp2)
+    ["mix1-go-pp2" (:= m1-pp m1-pp2)
                    (goto "mix1-the-trick")]
     ["mix1-cond-dynamic" (:= m1-pending (update-pending m1-pending m1-marked m1-pp1 m1-pp2 m1-vs))
                          (:= m1-code (extend m1-code `(if ,(reduce m1-exp m1-vs) ',(list m1-pp1 m1-vs) ',(list m1-pp2 m1-vs))))
@@ -99,7 +98,7 @@
   (interpret-fl
    mix-trick
    (list mix-trick
-         (list '(m1-program m1-division m1-program-tail m1-pp-query m1-bb m1-pp1 m1-pp2 m1-command X m1-exp m1-pp) '(m1-vs m1-pending m1-marked m1-vs0 m1-code m1-residual))
+         (list '(m1-program m1-division m1-program-tail m1-bb m1-pp1 m1-pp2 m1-command X m1-exp) '(m1-pp m1-vs m1-pending m1-marked m1-vs0 m1-code m1-residual))
          (init-state (list 'm1-program 'm1-division) (list tm-interpreter (list '(operator program program-tail instr symbol) '(Right Left)))))))
         
 (define (main)
